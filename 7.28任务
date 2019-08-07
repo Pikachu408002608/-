@@ -1,0 +1,64 @@
+from pandas import Series
+from pandas import DataFrame
+import pandas as pd
+import collections
+ALQ=pd.read_sas(r'C:\Users\ASUS\Downloads\ALQ_I.XPT')
+HIQ=pd.read_sas(r'C:\Users\ASUS\Downloads\HIQ_I.XPT')
+INQ=pd.read_sas(r'C:\Users\ASUS\Downloads\INQ_I.XPT')
+OCQ=pd.read_sas(r'C:\Users\ASUS\Downloads\OCQ_I.XPT')
+CDQ=pd.read_sas(r'C:\Users\ASUS\Downloads\CDQ_I.XPT')
+ALQ_new=pd.DataFrame(ALQ.fillna(0),columns=['SEQN','ALQ110'])
+HIQ_new=pd.DataFrame(HIQ.fillna(0),columns=['SEQN','HIQ260'])
+INQ_new=pd.DataFrame(INQ.fillna(0),columns=['SEQN','IND235'])
+OCQ_new=pd.DataFrame(OCQ.fillna(0),columns=['SEQN','OCQ660'])
+CDQ_new=pd.DataFrame(CDQ.fillna(0),columns=['SEQN','CDQ008'])
+
+#make alcohole usage, health insurance,income information, occupation information  into binary vectors
+
+a=pd.merge(ALQ_new.replace([2,7,9],0),HIQ_new.replace([2,7,9],0),on='SEQN')
+b=pd.merge(a,INQ_new.replace([77,99],0),on='SEQN')
+c=pd.merge(b,OCQ_new.replace([77,99],0),on='SEQN')
+
+data=pd.merge(c,CDQ_new.replace([2,7,9],0),on='SEQN')
+
+from sklearn import preprocessing
+from sklearn.model_selection import train_test_split
+
+if __name__ == "__main__":
+
+    x,y = data.iloc[:,1:4],data.ix[:,5]
+    #测试集为30%，训练集为70%
+    x_train,x_test,y_train,y_test = train_test_split(x,y,test_size=0.3,random_state=0)
+    print(len(x_train))
+    #124
+    print(len(x_test))
+    
+XX = pd.DataFrame(x_train)
+le = preprocessing.LabelEncoder()
+for col in XX.columns:
+    f = le.fit_transform(XX[col])
+    XX[col] = f
+print(XX)
+
+#划分训练集和测试集
+
+enc = preprocessing.OneHotEncoder()
+X_enc = enc.fit_transform(XX).toarray()
+print(X_enc)
+
+#决策树离散数据独热处理
+
+from sklearn import tree
+clf = tree.DecisionTreeClassifier()
+clf.fit(X_enc,y_train)
+
+#训练模型
+
+y_pred=clf.predict(enc.fit_transform(x_test).toarray())
+
+#预测测试集结果
+
+from sklearn.metrics import accuracy_score  
+print(accuracy_score(y_test,y_pred))
+
+#输出模型测试结果
