@@ -1,0 +1,39 @@
+from pandas import Series
+from pandas import DataFrame
+import pandas as pd
+import collections
+DR1IFF=pd.read_sas(r'C:\Users\ASUS\Documents\Tencent Files\408002608\FileRecv\DR1IFF_I.XPT')
+DR1TOT=pd.read_sas(r'C:\Users\ASUS\Documents\Tencent Files\408002608\FileRecv\DR1TOT_I.XPT')
+DR2IFF=pd.read_sas(r'C:\Users\ASUS\Documents\Tencent Files\408002608\FileRecv\DR2IFF_I.XPT')
+DR2TOT=pd.read_sas(r'C:\Users\ASUS\Documents\Tencent Files\408002608\FileRecv\DR2TOT_I.XPT')
+DRXFCD=pd.read_sas(r'C:\Users\ASUS\Documents\Tencent Files\408002608\FileRecv\DRXFCD_I.XPT')
+DEMO=pd.read_sas(r'C:\Users\ASUS\Documents\Tencent Files\408002608\FileRecv\DEMO_I.XPT')
+BPQ=pd.read_sas(r'C:\Users\ASUS\Documents\Tencent Files\408002608\FileRecv\BPQ_I.XPT')
+
+#Use data https://wwwn.cdc.gov/nchs/nhanes/search/datapage.aspx?Component=Dietary&CycleBeginYear=2015
+
+Income_new=DEMO[~DEMO['INDFMPIR'].isin(["NaN"])]
+Calc_new=DR1IFF[~DR1IFF['DR1ICALC'].isin(["NaN"])]
+HighPressure_new=BPQ[~BPQ['BPQ020'].isin(["."])]
+Income=pd.DataFrame(Income_new,columns=['SEQN','INDFMPIR'])
+Calc=pd.DataFrame(Calc_new,columns=['SEQN','DR1ICALC'])
+HighPressure=pd.DataFrame(HighPressure_new,columns=['SEQN','BPQ020'])
+form=pd.merge(Income,Calc,on='SEQN')
+form_2=pd.merge(form,HighPressure,on='SEQN')
+form_2
+
+#Extract demographic information, dietary data , Questionnaire data
+
+cov=form_2.cov()
+#Covarriance matrix of all the variable 
+corr=form_2.corr()
+#Correlation matrix of all the variable 
+
+for i in range(4):
+    for j in range(4):
+        C[i,j]=-B[i,j]/(math.sqrt(B[i,i]*B[j,j]))
+
+C2=pd.DataFrame(C)
+C2
+
+#Partial correlation matrix of all the variable 
