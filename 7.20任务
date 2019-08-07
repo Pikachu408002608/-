@@ -1,0 +1,21 @@
+from pandas import Series
+from pandas import DataFrame
+import pandas as pd
+import collections
+frame=pd.read_csv(r'C:\Users\ASUS\Downloads\Rate.csv')
+frame#Read data file into Python as data frame 
+StateCode=frame['StateCode']
+num = collections.Counter(StateCode)
+StateAndRate=pd.DataFrame(frame,columns=['StateCode','IndividualRate'])
+StateAndRate_new=StateAndRate[~StateAndRate['IndividualRate'].isin([999999])]
+group=StateAndRate['IndividualRate'].groupby(StateAndRate_new['StateCode'])
+print("The mean of each state is:\n",group.mean())#Calculate mean rate for each state
+print("The median of each state is:\n",group.median())#calculate median insurance cost/person each state
+cancer=pd.read_csv(r'C:\Users\ASUS\Downloads\USCS_OverviewMap.csv')
+cancer_rate=pd.DataFrame(cancer,columns=['StateCode','Ratio'])
+Insurance_mean=pd.DataFrame(group.mean())
+CancerAndInsurance=pd.merge(cancer_rate,Insurance_mean,on='StateCode')
+stroke=pd.read_csv(r'C:\Users\ASUS\Downloads\stroke_mortality.csv')
+stroke_rate=pd.DataFrame(stroke,columns=['StateCode','RATE'])
+form=pd.merge(CancerAndInsurance,stroke_rate,on='StateCode')
+form.corr()#Compare with cancer and stroke
